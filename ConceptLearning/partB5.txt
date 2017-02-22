@@ -1,0 +1,1 @@
+The result shows that we got half of the hypotheses are high and half of them low. But we can not tell which ones are right only from the answer. So the list then eliminate algorithm may have 50% of chance telling us the wrong prediction. Plus, the list then eliminate algorithm has to enumerate all hypotheses, maybe some of them are redundant.

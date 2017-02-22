@@ -1,0 +1,7 @@
+Did you receive any help whatsoever from anyone in solving this assignment? Yes/No
+No
+Did you give any help whatsoever to anyone in solving this assignment? Yes/No
+No
+Did you find or come across code that implements any part of this assignment ? Yes/No
+No
+But since I’m not familiar with python (I’m more into C and R), I googled some functions and understood it wholly by myself. Then I created the code through my own algorithms and interpretations.

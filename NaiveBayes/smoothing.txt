@@ -1,0 +1,1 @@
+The accuracies for q = 0.1, 0.5, 1 and 5 are 0.8333, 0.8056, 0.8056 and 0.6944. For q = 0, it means if the word in vocabulary but not in one of the text like liberal, the probability is zero. so the multiplication of all observations is 0. We cannot predict anything with 0 probability, so the error must be larger. So I would prefer q = 0.1, whose accuracy is 0.8333.
