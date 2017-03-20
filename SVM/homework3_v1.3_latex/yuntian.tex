@@ -1,0 +1,90 @@
+\section{Support Vector Machines (50 Points) (Yuntian)}
+\subsection{Support Vector Regression (25 Points)}
+We now extend support vector machines (SVM) to regression problems. Recall that in regression problems, we have $n$ data points $(x_i,y_i)_{i=1}^n$ where $x_i\in \mathbb{R}^m$ and $y_i\in \mathbb{R}$. Given a function class $\mathcal{F}$ (\eg linear or quadratic functions), we want to fit a function $f\in\mathcal{F}$ on the training set:
+\begin{align}
+f^\star = \argmin_{f\in\mathcal{F}}\, C\sum_{i=1}^n l(f(x_i),y_i) + R(f)
+\end{align}
+where $l(\cdot, \cdot)$ is the loss function, $R(f)$ is the regularization term, $C$ controls the regularization strength. The first part tries to fit data, and the second part penalizes complex $f$ to avoid over-fitting.
+
+In the support vector regression (SVR) framework, we consider linear function class $\mathcal{F}=\{x\to w^T x\}$ (we do not consider interception term for simplicity). We use $ \ell_2 $-regularizer $R(f) = \frac{1}{2}\|w\|_2^2$ for $f(x)=w^T x$. For the loss function $l$, similar to the hinge-loss function in SVM classification, we employ an $\epsilon$-insensitive error function
+\begin{align}
+l_{\epsilon}(f(x),y) =
+\begin{cases}
+0       &      \quad {\textrm{if } |f(x)-y| < \epsilon}\\
+|f(x)-y|-\epsilon     &      \quad {\textrm{otherwise}}.
+\end{cases}
+\end{align}
+Then we get the following optimization problem:
+\begin{align}
+w^\star = \argmin_w\, C \sum_{i=1}^n l_\epsilon(w^T x_i,y_i) + \frac{1}{2}\|w\|_2^2.
+\end{align}
+\begin{enumerate}
+\item Write down the dual problem of SVR. (Hint: follow the derivations for SVM)
+\item Write down the KKT conditions, and explain what are the ``support vectors''.
+\item Derive a kernelized version of SVR. For a test point $x$, write down the prediction rule.
+\item Give one reason why do we usually solve the dual problem of SVR and SVM instead of the primal.
+\item Implement SVR on a \href{http://www.cs.cmu.edu/~epxing/Class/10701-15F/files/SVR_dataset.txt}{1-D toy dataset}. Each line of the dataset contains a training instance $(x_i,y_i)$ (separated by a tab). For this problem, you need to
+    \begin{itemize}
+    \item Use RBF kernel $k(x_i,x_j) = \exp(-\frac{\|x_i-x_j\|_2^2}{2h^2})$, and take $h=0.5${\color{red}, $C=4$, $\epsilon=0.1$}.
+    \item Plot the prediction curve for $x\in[0,1]$ and show the support vectors versus other training points in the training dataset.
+    \end{itemize}
+    (Hint: You are allowed to use optimization toolkits such as CVX or Matlab's inbuilt function quadprog to solve the dual problem.)
+\end{enumerate}
+\subsection{Support Kernel Machines (20 Points)}
+In SVM, the kernel function can be viewed as a similarity measure between data points. In some classification scenarios, features may come from different sources or modalities, e.g. in some tasks the data may contain both image features and text features. In that case, since these are different representations, they have different measures of similarity corresponding to different kernels. In such a case, we want to learn a combination of kernels instead of using a single kernel. There is significant amount of work in combing kernels, here we adapt the notations in \cite{bach2004multiple}.
+
+We begin by considering a linear case of Support Kernel Machine (SKM). Suppose the data points $x_i\in\mathcal{X}=\mathbb{R}^k$. We also assume we are given a decomposition of $\mathbb{R}^k=\mathbb{R}^{k_1}\times\cdots\times\mathbb{R}^{k_m}$, so that each data point $x_i$ can be decomposed into $m$ block components, i.e. $x_i=(x_{1i},\cdots,x_{mi})$ where each $x_{ji}$ is in general a vector. In real tasks, each block may correspond to a certain kind of representation, e.g. $x_{1i}$ may correspond to image features and $x_{2i}$ may be text features.
+
+Our goal is to find a linear classifier of the form $y=\textrm{sign}(w^Tx+b)$ where $w$ has the same block decomposition $w=(w_1,\cdots,w_m)\in\mathbb{R}^{k_1+\cdots+k_m}$. Recall that in linear SVM the objective is:
+\begin{align}
+\mini_{\substack{w \in \mathbb{R}^{k_1}\times\cdots\times\mathbb{R}^{k_m} \\
+\xi_i\ge0, \ 
+b\in\mathbb{R}}} & \quad \frac{1}{2}\|w\|_2^2+C\sum_{i=1}^n\xi_i \\
+\subto & \quad y_i(\sum_j w_j^T x_{ji}+b)\ge 1-\xi_i, \ \forall i \in\{1,\cdots,n\}
+\end{align}
+In SKM, we encourage the sparsity of the vector $w$ at the level of blocks. The primal problem for the SKM is defined as:
+\begin{align}
+\mini_{\substack{w \in \mathbb{R}^{k_1}\times\cdots\times\mathbb{R}^{k_m} \\ \xi_i\ge0, \ b\in\mathbb{R}}} 
+& \quad \frac{1}{2}(\sum_{j=1}^m d_j \|w_j\|_2)^2+C\sum_{i=1}^n\xi_i\\
+\subto & \quad y_i(\sum_j w_j^T x_{ji}+b)\ge 1-\xi_i, \ \forall i \in\{1,\cdots,n\}
+\end{align}
+where $d_j>0$ can be seen as constant.
+\begin{enumerate}
+\item By introducing dual variables $\alpha_i\ge 0$ and $\beta_i\ge 0$, we get the Lagrangian function
+\begin{align}
+\mathcal{L} = \frac{1}{2} (\sum_{j=1}^m d_j\|w_j\|_2)^2 + C\sum_{i=1}^n\xi_i - \sum_{i=1}^n \alpha_i (y_i(\sum_{j=1}^m w_j^Tx_{ji}+b)-1+\xi_i) - \sum_{i=1}^n\beta_i\xi_i
+\end{align}
+Denote $\gamma = \sum_{j=1}^m d_j \|w_j\|_2$.
+\begin{enumerate}[(a)]
+\item Show that at the {\color{red}minimum} of the Lagrangian function, {\color{red}i.e. $w = \argmin_w \mathcal{L}$ for this and the following questions},
+\begin{align}
+\|w_j\|_2 d_j \gamma = w_j^T \sum_{i=1}^n \alpha_i y_i x_{ji}, \ \forall j\in\{1,\cdots,m\}
+\end{align}
+\item Show that $\|\sum_{i=1}^n \alpha_i y_i x_{ji}\|_2\le d_j \gamma$, $\forall j\in\{1,\cdots,m\}$.
+
+{\color{red}Note: for (b) you can get full credit if you only consider $w_j\neq 0$, but you can get 5 extra points if you include $w_j=0$ case in your proof. A hint is that $\mathcal{L}$ is not differentiable w.r.t. $w_j$ if $w_j=0$, and you may refer to \href{http://www.eecs.berkeley.edu/~wainwrig/ee227a/ee227a_subgradient_lecture.pdf}{this link} for how to deal with that case by using $\partial \|x\|_2 = \{g:\|g\|_2\le 1\}$ if $x=0$.}
+\item Show that
+\begin{itemize}
+\item if $\|\sum_i \alpha_i y_i x_{ji}\|_2< d_j \gamma$, then $w_j=0$,
+\item if $\|\sum_i \alpha_i y_i x_{ji}\|_2= d_j \gamma$, then $\exists \eta_j>0$, such that $w_j = \eta_j \sum_i \alpha_i y_i x_{ji}$.
+\end{itemize}
+\end{enumerate}
+\item Recall from homework 2 that $ \ell_1 $ norm can encourage sparsity. Explain the effect of the regularization term $\frac{1}{2}(\sum_{j=1}^m d_j \|w_j\|_2)^2$.
+\item Now we extend the above analysis to a kernelized version. Assume that we have a mapping $\phi:\mathcal{X}\to\mathbb{R}^f$ which is generally a non-linear function. We assume that $\phi(x)$ has $m$ block components $\phi(x)=(\phi_1(x),\cdots,\phi_m(x))${\color{red}, and we also assume $w$ has the same decomposition $w=(w_1,\cdots,w_m)$}. Show that at the {\color{red}minimum} of the Lagrangian function, $\exists\eta_j\ge0$ such that $w_j=\eta_j \sum_{i=1}^n\alpha_iy_i\phi_j(x_i)$.
+\end{enumerate}
+\subsection{SVM Error Analysis (5 Points)}
+In this problem, we want to analyze the error of SVM classification. Assume that we have $n$ data points $(x_i,y_i)_{i=1}^n$ where $x_i\in \mathbb{R}^m$ and $y_i={1,\cdots,K}$. Assume that we train an SVM classifier $f_{(x_1,y_1),\cdots(x_n,y_n)}$ on these $n$ data points.
+
+For a randomly drawn test data point $(x_{n+1},y_{n+1})$, the prediction is $y_{n+1}^{\rm pred} = f_{(x_1,y_1),\cdots,(x_n,y_n)}(x_{n+1})$. We assume that the $n$ training data points and the test data point $(x_{n+1},y_{n+1})$ are drawn i.i.d from some unknown underlying distribution. The expected error rate is defined as:
+\begin{align}
+{\sf err} = \mathbb{E}_{(x_1,y_1),\cdots(x_n,y_n)} \mathbb{E}_{(x_{n+1},y_{n+1})} [\one\cbb{f_{(x_1,y_1),\cdots,(x_n,y_n)}(x_{n+1})\neq y_{n+1}}]
+\end{align}
+where the indicator function $\one\cbb{A} = 1 $ if $ A $ is true, otherwise 0. 
+\begin{enumerate}
+\item Show the the expected error rate is equal to the expectation of leave-one-out cross validation error for $n+1$ data points.
+\item In the lecture, we have the statement that ``the leave-one-out cross-validation error does not depend on the dimensionality of the feature space but only on the number of support vectors''. Show that this statement is true by explaining why
+\begin{align}
+{\sf err}_{\rm loocv} \le \frac{n_s}{n+1}
+\end{align}
+where ${\sf err}_{\rm loocv}$ is the leave-one-out cross-validation error for training set $(x_i,y_i)_{i=1}^{n+1}$, $n_s$ is the number of support vectors.
+\end{enumerate}

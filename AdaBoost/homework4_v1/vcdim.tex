@@ -1,0 +1,34 @@
+\section{VC dimension (20 Points) (Xun)}
+
+\newcommand{\vcdim}{\mathop{\mathrm{VCdim}}}
+
+To show a concept class $ H $ has VC dimension $ d $, we need to prove both the lower bound $ \vcdim (H) \ge d $ and the upper bound $ \vcdim (H) \le d$.
+
+\begin{enumerate}
+\item 
+Show that linear classifiers $ h(x) = \one_{\cbb{a\t x + b \ge 0}} $ in $ \Rb^n $ has VC dimension $ n+1 $.
+
+Hint: the following theorem might be useful in proving the upper bound.
+A set of $ n+2 $ points in  $ \Rb^n $ can be partitioned into two disjoint subsets $ S_1 $ and $ S_2 $ such that their convex hulls intersect. 
+The convex hull $ \conv (C) $ of a set $ C $ is defined as the set of all convex combinations of points in $ C $: 
+\begin{align}
+\conv (C) = \cbb{\sum_{i=1}^{k} \alpha_i x_i:  x_i \in C, \alpha_i \ge 0, \sum_{i=1}^{k} \alpha_i = 1 }. 
+\end{align}
+You do not need to know anything about convexity beyond this hint to solve this problem. 
+
+
+\item 
+Show that axis-aligned boxes $ h(x) = \one_{\cbb{a_i \le x_i \le b_i, \forall i}} $ in $ \Rb^n $ has VC dimension $ 2n $. 
+
+
+\end{enumerate}
+
+
+
+
+
+
+
+
+
+

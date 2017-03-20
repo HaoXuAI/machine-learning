@@ -1,0 +1,93 @@
+\section{Gaussian Mixture Model (10 Points) (Hao)}
+Consider a multivariate Gaussian Mixture Model with $K$ components:
+\begin{align}
+p(x) = \sum_{k=1}^{K} \pi_k \mathcal{N} (x | \mu_k, \Sigma_k)
+\end{align}
+\begin{enumerate}
+\item Show that 
+$
+\mathbb{E}[x] = \sum_{k} \pi_k \mu_k
+$.
+
+\item Show that
+$
+\cov [x] = \sum_{k} \pi_k [\Sigma_k + \mu_k \mu_k^\top] - \mathbb{E}[x] \mathbb{E}[x]^\top
+$.
+
+\end{enumerate}
+
+\section{K-means (40 Points) (Hao)}
+
+Given $n$ data samples in $\mathcal{X} \subseteq  \mathbb{R}^d$ and an integer $K$, we showed in class that the K-means algorithm tries to determine $K$ clusters $\{C_k\}_{k=1}^K$ with centers $\mathcal{U}_K = \{\mu_k\}_{k=1}^K \subseteq \mathbb{R}^d$, and a mapping function $f: \mathcal{X} \rightarrow \{1, \cdots, K\}$ which assigns each $x_i \in \mathcal{X}$ to one of the clusters, so as to optimize the following objective,
+\begin{align}
+\label{eq:obj1}
+\phi = \sum_{k=1}^K \frac{1}{n_k} \sum_{i=1}^{n_k} \sum_{j=1}^{n_k} \| x_{ki} - x_{kj}\|^2
+\end{align}
+where $x_{ki}$ denotes the $i$th sample in $C_k$ and $n_k$ is the number of data samples in $C_k$.
+
+\subsection{Theory}
+
+\begin{enumerate}
+
+\item Prove the following Lemma.
+\begin{lemma}
+\label{lemma1} 
+Given a set of points $\mathcal{X} \subseteq  \mathbb{R}^d$ with their center as $\bar{x}$. For any point $s$,
+\begin{align}
+\sum_{x \in \mathcal{X}} \| x - s \|^2 - \sum_{x \in \mathcal{X}} \| x - \bar{x}\|^2 = | \mathcal{X} | \cdot \| \bar{x} - s\|^2
+\end{align}
+\end{lemma}
+
+\item Use Lemma.\ref{lemma1} to prove that minimizing the objective in Eq.\ref{eq:obj1} is equal to minimizing the following objective:
+\begin{align}
+\omega(\mathcal{U}_K, f; \mathcal{X}) = \sum_{k=1}^K \sum_{i=1}^n 
+\mathds{1}(f(x_i) = k ) \| x_{i} - \mu_k \|^2
+\end{align}
+
+\item
+Algorithm.\ref{algo:kmeans} presents how K-means proceeds. Show respectively that both \textbf{Step 1} and \textbf{Step 2} will decrease the objective $\phi$ (or $\omega$).
+\begin{algorithm}[]
+\label{algo:kmeans}
+\caption{K-means Algorithm}
+\setcounter{AlgoLine}{0}
+Initialize $\{\mu_k\}_{k=1}^K$ (randomly, if necessary).\\
+\Repeat{the objective no longer changes}{
+\textbf{Step 1}: Decide the class memberships of $\{x_i\}_{i=1}^n$ by assigning each of them to its nearest cluster center.\\
+\textbf{Step 2}: For each $k \in \{1, \cdots, K\}$, set $\mu_k$ to be the center of mass of all points in $C_i$: $\mu_i = \frac{1}{n_k} \sum_{i=1}^{n_k} x_{ki}$
+}
+\end{algorithm}
+
+\item 
+\label{K}
+Let 
+$
+\Omega(K) = \min_{\mathcal{U}_K, f} \omega(\mathcal{U}_K, f; \mathcal{X})
+$. Show that $\Omega$ is non-increasing in $K$.
+
+\item 
+In K-means (as in Algorithm.\ref{algo:kmeans}), we terminate the iterative process when the objective no longer changes. Prove that K-means terminates in a finite number of iterations. 
+\end{enumerate}
+
+\subsection{Implementation}
+Now you are ready to implement K-means by yourself. A dataset including 2429 human faces is provded in the file \emph{kmeans\_data.csv}. Each of the 2429 lines in this file corresponds to a $19 \times 19$ image of a human face. Every image is represented as a 361-dimensional vector of grayscale values, in column-major format.
+\begin{enumerate}
+\item Implement K-means algorithm, as detailed in Alogorithm.\ref{algo:kmeans}. Your implementation should initialize $\{\mu_k\}_{k=1}^K$ by uniformly randomly choosing from $\mathcal{X}$. Compute the objective value in Eq.\ref{eq:obj1} of each iteration. You K-means algorithm should be terminated when a given number of iterations $M$ are reached.
+
+\item Run your implementation for 15 times, using $k=5, M = 50$. Draw the objective v.s. iterations for all 15 runs in one plot. Have they converged? How many iterations does each iteration take to converge?  Choose the run with minimal objective value, compute the mean faces for this run, i.e., the centers of the clusters. Visualize the mean faces.
+
+\item Usually the clustering results by K-means can be greatly improved by carefully choosing an initialization strategy. K-means++ is a randomized seeding technique which can improve both the speed and the accuracy of K-means \cite{arthur2007k}. Algorithm.\ref{algo:kmeans++} elaborates how K-means++ initializes the clustering centers $\{\mu_k\}_{k=1}^K$.
+\begin{algorithm}[]
+\label{algo:kmeans++}
+\caption{K-means++ Initialization}
+\setcounter{AlgoLine}{0}
+Take one center $\mu_1$, chosen uniformly at random from $\mathcal{X}$.\\
+Take a new center $\mu_k (k>1)$ from $\mathcal{X}$, so that $Pr(\mu_k = x_i) = \frac{D(x_i)^2}{\sum_{j=1}^n D(x_j)^2}$ where $D(x)$ is the distance from $x$ to its nearest center in $\{\mu_k\}_{k=1}^{j-1}$.\\
+Repeat the above step until all $\{\mu_k\}_{k=1}^K$ have been initialized.
+\end{algorithm}
+
+Implement K-means++ based on your K-means implementation. Note that you need to implement a sampler by yourself which samples from a multinomial distribution. Then, run your implementation with K-means++ for 15 times, using $k=5, M=50$. Draw the objective v.s. iterations for all 15 runs in one plot. How many iterations do they take to converge? Compute the mean faces for the run with the minimal objective. Visualize the mean faces. Compare your curve and mean faces to your previous ones. Conclude your observation.
+
+
+\end{enumerate}
+
+Submit both the write-up and your code. 
